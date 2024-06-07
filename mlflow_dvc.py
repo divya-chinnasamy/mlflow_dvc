@@ -21,7 +21,7 @@ path = "data/winequality.csv"  # wine-quality.csv.dvc file presence is enough if
 repo = "https://github.com/divya-chinnasamy/mlflow_dvc" # git init directory location
 version = "v1" # git tag -a 'v1' -m 'removed 1000 lines' command is required
 
-data_url = dvc.api.get_url('data/winequality.csv', repo=repo) #,   rev=version
+data_url = dvc.api.get_url(path, repo=repo) #,   rev=version
 
 
 def eval_metrics(actual, pred):
@@ -47,8 +47,8 @@ if __name__ == "__main__":
     train_y = train[["quality"]]
     test_y = test[["quality"]]
 
-    alpha = float(sys.argv[1]) if len(sys.argv) > 1 else 0.4
-    l1_ratio = float(sys.argv[2]) if len(sys.argv) > 2 else 0.6
+    alpha = float(sys.argv[1]) if len(sys.argv) > 1 else 0.5
+    l1_ratio = float(sys.argv[2]) if len(sys.argv) > 2 else 0.5
 
     with mlflow.start_run():
 
@@ -76,15 +76,17 @@ if __name__ == "__main__":
         mlflow.log_metric("r2", r2)
         mlflow.log_metric("mae", mae)
 
-        tracking_url_type_store = urlparse(mlflow.get_tracking_uri()).scheme
+        mlflow.sklearn.log_model(lr, "model", registered_model_name="ElasticnetWineModel")
+        
+        # tracking_url_type_store = urlparse(mlflow.get_tracking_uri()).scheme
 
-        # Model registry does not work with file store
-        if tracking_url_type_store != "file":
+        # # Model registry does not work with file store
+        # if tracking_url_type_store != "file":
 
-            # Register the model
-            # There are other ways to use the Model Registry, which depends on the use case,
-            # please refer to the doc for more information:
-            # https://mlflow.org/docs/latest/model-registry.html#api-workflow
-            mlflow.sklearn.log_model(lr, "model", registered_model_name="ElasticnetWineModel")
-        else:
-            mlflow.sklearn.log_model(lr, "model")
+        #     # Register the model
+        #     # There are other ways to use the Model Registry, which depends on the use case,
+        #     # please refer to the doc for more information:
+        #     # https://mlflow.org/docs/latest/model-registry.html#api-workflow
+        #     mlflow.sklearn.log_model(lr, "model", registered_model_name="ElasticnetWineModel")
+        # else:
+        
